@@ -3,16 +3,10 @@ from watchdog.events import FileSystemEventHandler
 import argparse
 import time
 import os
-import threading 
-from gui_dialog import select_dir
-import flet as ft
-from multiprocessing import Process
 import tkinter as tk
 from tkinter import filedialog, Tk
-
-def _open(root):
-    path = filedialog.askdirectory()
-    print(path)
+import configparser
+from utils import mv
 
 class EventHandler(FileSystemEventHandler): # should be out of this file
     def __init__(self, root):
@@ -23,16 +17,18 @@ class EventHandler(FileSystemEventHandler): # should be out of this file
         new_file_path = e.src_path
         print(f"new file create:{new_file_path}")
         # open dialog and pass new_file_path
-        path = filedialog.askdirectory()
-        print(path)
+        dst = filedialog.askdirectory()
+        mv(new_file_path, dst)
+        # 失敗したら通知する
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--dir")
-    args = parser.parse_args()
-    DIR = args.dir
+    config_ini = configparser.ConfigParser()
+    config_ini.read("./config/config.ini")
 
-    root = tk.Tk()   
+    DIR = config_ini["TARGET"]["DIR"]
+    print(f"observing {DIR}")
+    
+    root = tk.Tk()
     root.geometry("0x0")
     root.withdraw()
 
